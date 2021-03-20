@@ -17,7 +17,6 @@ module.exports = {
 
   product: function(request, response) {
     var id = request.query.productId;
-    // var id = 1;
     models.getProduct(id, (err, data) => {
       if(err) {
         console.log('getProduct error: ', err)
@@ -44,6 +43,7 @@ module.exports = {
     var id = request.query.productId;
     models.getRelatedProducts(id, (err, data) => {
       if(err) {
+        console.log(err)
         response.sendStatus(404)
       } else {
         response.send(data)

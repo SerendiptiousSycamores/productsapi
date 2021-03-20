@@ -15,41 +15,53 @@ module.exports = {
   },
 
   getProduct: function(id, callback) {
-    var query = `SELECT * FROM product WHERE product_id=${id}`;
+    var id = id || 90000;
+
+    var query = `
+    SELECT
+      product.product_id::INT,
+      product.name::VARCHAR,
+      product.slogan::VARCHAR,
+      product.description::TEXT,
+      product.category::VARCHAR,
+      product.default_price::INT,
+      (
+        SELECT json_agg(
+          json_build_object(
+            'feature', features.feature::VARCHAR,
+            'value', features.value::VARCHAR
+          )
+        ) features
+        FROM features
+        where features.product_id =${id}
+      ) as features
+    FROM product
+    WHERE product_id=${id}`;
     db.query(query, (err, result) => {
       if (err) {
         callback(err, null)
       } else {
-        var data = result.rows[0];
-
-        query = `SELECT feature,value FROM features WHERE product_id=${id}`;
-        db.query(query, (err, result) => {
-          if (err) {
-            callback(err, null)
-          } else {
-            data['features'] = result.rows
-            callback(null, data)
-          }
-        })
+        callback(null, result.rows[0])
       }
     })
   },
 
   // add skus and photos queries once I know data type
   getStyles: function(id, callback) {
+    var id = id || 14;
     var data = {"product_id": id};
     var query = `
       SELECT
-      style.style_id,
-      style.name,
-      style.original_price,
-      style.sale_price,
-      style.default_style,
+      style.style_id::INT,
+      style.name::VARCHAR,
+      style.original_price::INT,
+      style.sale_price::VARCHAR,
+      style.default_style::BOOLEAN,
         (
           SELECT json_agg(
             json_build_object(
-              'thumbnail_url', photos.thumbnail_url,
-              'url', photos.url
+              'thumbnail_url', photos.thumbnail_url::TEXT,
+              'url', photos.url::TEXT
             )
           ) photos
           FROM photos
@@ -69,25 +81,16 @@ module.exports = {
   },
 
   getRelatedProducts: function(id, callback) {
-    var data = [];
+    var id = id || 14034;
 
-    var query = `SELECT related_id FROM related WHERE product_id=${id}`;
+    var query = `SELECT array_agg(related_id::TEXT) FROM related WHERE product_id=${id}`;
     db.query(query, (err, result) => {
       if (err) {
+        console.log(err)
         callback(err, null)
       } else {
-        var related = result.rows;
-        for(var i = 0; i < related.length; i++) {
-          data.push(related[i]['related_id'])
-        }
-        callback(null, data)
+        callback(null, result.rows[0].array_agg)
       }
     })
   }
 }
-
-
-// `SELECT style.style_id, style.name, style.original_price, style.sale_price,style.default_style, SELECT photos.thumbnail_url, photos.url,  FROM style, photos, skus WHERE style.product_id=${id} AND photos.style_id=style.style_id AND skus.style_id=style.style_id`
-
-
-// `SELECT style.style_id, style.name, style.original_price, style.sale_price,style.default_style, photos.thumbnail_url, photos.url, skus.sku_id, skus.size, skus.quantity FROM style, photos, skus WHERE style.product_id=${id} AND photos.style_id=style.style_id AND skus.style_id=style.style_id`
