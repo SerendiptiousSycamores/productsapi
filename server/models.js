@@ -62,7 +62,8 @@ module.exports = {
         console.log('read all styles err: ', err)
         callback(err, null)
       } else {
-        callback(null, JSON.stringify(result.rows))
+        data['results'] = result.rows;
+        callback(null, data)
       }
     })
   },

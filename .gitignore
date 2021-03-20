@@ -1,2 +1,8 @@
 # Node Modules
 node_modules/
+
+# CSV DATA
+data/
+
+# DS_STORE
+.DS_Store

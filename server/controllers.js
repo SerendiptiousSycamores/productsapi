@@ -16,19 +16,20 @@ module.exports = {
   },
 
   product: function(request, response) {
-    var id = 1;
+    var id = request.query.productId;
+    // var id = 1;
     models.getProduct(id, (err, data) => {
       if(err) {
         console.log('getProduct error: ', err)
         response.sendStatus(404)
       } else {
-        response.json(data)
+        response.send(data)
       }
     })
   },
 
   styles: function(request, response) {
-    var id = 1;
+    var id = request.query.productId;
     models.getStyles(id, (err, data) => {
       if(err) {
         console.log('getStyles error: ', err)
@@ -40,7 +41,7 @@ module.exports = {
   },
 
   related: function(request, response) {
-    var id = 900;
+    var id = request.query.productId;
     models.getRelatedProducts(id, (err, data) => {
       if(err) {
         response.sendStatus(404)
