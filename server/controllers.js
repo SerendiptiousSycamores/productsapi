@@ -29,7 +29,7 @@ module.exports = {
 
   styles: function(request, response) {
     var id = 1;
-    models.getStyles((err, data) => {
+    models.getStyles(id, (err, data) => {
       if(err) {
         console.log('getStyles error: ', err)
         response.sendStatus(404)

@@ -5,7 +5,7 @@ router.get('/', controller.products)
 
 router.get('/productId', controller.product)
 
-router.get('/prodcutId/styles', controller.styles)
+router.get('/productId/styles', controller.styles)
 
 router.get('/productId/related', controller.related)
 

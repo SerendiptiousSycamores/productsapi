@@ -15,27 +15,19 @@ module.exports = {
   },
 
   getProduct: function(id, callback) {
-    var data;
-
     var query = `SELECT * FROM product WHERE product_id=${id}`;
     db.query(query, (err, result) => {
       if (err) {
         callback(err, null)
       } else {
-        data = result.rows[0];
+        var data = result.rows[0];
 
-        query = `SELECT * FROM features WHERE product_id=${id}`;
+        query = `SELECT feature,value FROM features WHERE product_id=${id}`;
         db.query(query, (err, result) => {
           if (err) {
             callback(err, null)
           } else {
-            var features = result.rows
-            for(var i = 0; i < features.length; i++) {
-              delete features[i]['feature_id'];
-              delete features[i]['product_id'];
-            }
-            data['features'] = features
-
+            data['features'] = result.rows
             callback(null, data)
           }
         })
@@ -45,13 +37,32 @@ module.exports = {
 
   // add skus and photos queries once I know data type
   getStyles: function(id, callback) {
-    var query = `SELECT * FROM style WHERE product_id=${id}`;
+    var data = {"product_id": id};
+    var query = `
+      SELECT
+      style.style_id,
+      style.name,
+      style.original_price,
+      style.sale_price,
+      style.default_style,
+        (
+          SELECT json_agg(
+            json_build_object(
+              'thumbnail_url', photos.thumbnail_url,
+              'url', photos.url
+            )
+          ) photos
+          FROM photos
+          where photos.style_id = style.style_id
+        ) as photos
+      FROM style
+      WHERE style.product_id=${id}`;
     db.query(query, (err, result) => {
       if (err) {
-        console.log('read all products err: ', err)
+        console.log('read all styles err: ', err)
         callback(err, null)
       } else {
-        console.log(result)
+        callback(null, JSON.stringify(result.rows))
       }
     })
   },
@@ -59,7 +70,7 @@ module.exports = {
   getRelatedProducts: function(id, callback) {
     var data = [];
 
-    var query = `SELECT * FROM related WHERE product_id=${id}`;
+    var query = `SELECT related_id FROM related WHERE product_id=${id}`;
     db.query(query, (err, result) => {
       if (err) {
         callback(err, null)
@@ -68,10 +79,14 @@ module.exports = {
         for(var i = 0; i < related.length; i++) {
           data.push(related[i]['related_id'])
         }
-
         callback(null, data)
       }
     })
   }
-
 }
+
+
+// `SELECT style.style_id, style.name, style.original_price, style.sale_price,style.default_style, SELECT photos.thumbnail_url, photos.url,  FROM style, photos, skus WHERE style.product_id=${id} AND photos.style_id=style.style_id AND skus.style_id=style.style_id`
+
+
+// `SELECT style.style_id, style.name, style.original_price, style.sale_price,style.default_style, photos.thumbnail_url, photos.url, skus.sku_id, skus.size, skus.quantity FROM style, photos, skus WHERE style.product_id=${id} AND photos.style_id=style.style_id AND skus.style_id=style.style_id`
