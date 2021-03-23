@@ -2,7 +2,8 @@ const db = require('../databases/postgres.js')
 
 module.exports = {
   getProducts: function(page, count, callback) {
-    var query = `SELECT * FROM product LIMIT ${count} OFFSET ${page}`;
+    // hacky way of paginating, assuming each page equal to number of counts
+    var query = `SELECT * FROM product LIMIT ${count} OFFSET ${page -1 * count}`;
     db.query(query, (err, result) => {
       if (err) {
         callback(err, null)
