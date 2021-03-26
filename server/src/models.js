@@ -1,4 +1,4 @@
-const db = require('../databases/postgres.js')
+const db = require('./postgres.js')
 
 module.exports = {
   getProducts: function(page, count, callback) {

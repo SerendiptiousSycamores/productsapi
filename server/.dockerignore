@@ -1,8 +1,5 @@
 # Node Modules
 node_modules/
 
-# AWS KEY
-sdc.pem
-
-# DS_STORE
+# MISC
 .DS_Store

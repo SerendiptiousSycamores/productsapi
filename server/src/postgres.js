@@ -1,8 +1,9 @@
 const { Client } = require('pg');
 
+//change host to docker container name
 const client = new Client({
-    user: 'Ika',
-    host: 'localhost',
+    user: 'postgres',
+    host: 'postgres',
     database: 'productsapi',
     password: 'password',
     port:'5432'
