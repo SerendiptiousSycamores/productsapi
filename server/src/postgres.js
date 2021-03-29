@@ -1,6 +1,6 @@
 const { Client } = require('pg');
 
-//change host to docker container name
+
 const client = new Client({
     user: 'postgres',
     host: 'postgres',
@@ -9,13 +9,23 @@ const client = new Client({
     port:'5432'
 });
 
-client.connect(function(err) {
-  if(err) {
-    console.log('could not connect to postgres', err);
-  } else {
-    console.log('successfully connected to postgres');
+var connection = async() => {
+  let attempts = 20;
+
+  while (attempts) {
+    try {
+    await client.connect();
+    console.log("POSTGRES CONNECTED!!!");
+    break;
+    } catch (err) {
+    console.log("error connecting to postgres: ", err);
+    attempts -=1
+    console.log(`connection attempts left ${attempts}`);
+    await new Promise (res => setTimeout(res, 60000));
+    }
   }
-});
+};
+
 
 module.exports = client;
 

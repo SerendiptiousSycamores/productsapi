@@ -1,5 +1,6 @@
 # Node Modules
-node_modules/
+node_modules
+npm-debug.log
 
 # MISC
 .DS_Store
